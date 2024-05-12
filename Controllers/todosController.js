@@ -24,15 +24,15 @@ const getAllTodos = async (req, res) => {
 
     const allTodos = await Todos.find({ userId: id }).sort();
 
-    return res.status(200).json(allTodos);
+    return res.status(200).json(generateResponse(true, "", allTodos));
   } catch (err) {
-    return res.status(500).json(err.message);
+    return res.status(500).json(generateResponse(false, err.message));
   }
 };
 
 const editTodo = async (req, res) => {
   try {
-    const todo = req.body.data;
+    const todo = req.body;
 
     const data = await Todos.findOneAndUpdate(
       { _id: req.params.id },
@@ -40,9 +40,11 @@ const editTodo = async (req, res) => {
       { new: true }
     );
 
-    return res.status(200).json(data);
+    return res
+      .status(200)
+      .json(generateResponse(true, response.todoEdited, data));
   } catch (err) {
-    return res.status(500).json(err.message);
+    return res.status(500).json(generateResponse(false, err.message));
   }
 };
 
@@ -50,15 +52,17 @@ const deleteTodo = async (req, res) => {
   try {
     const data = await Todos.findOneAndDelete({ _id: req.params.id });
 
-    return res.status(200).json(data);
+    return res
+      .status(200)
+      .json(generateResponse(true, response.todoDeleted, data));
   } catch (err) {
-    res.status(500).json(err.message);
+    res.status(500).json(generateResponse(false, err.message));
   }
 };
 
 const toggleStatus = async (req, res) => {
   try {
-    const todo = req.body.data;
+    const todo = req.body;
 
     const data = await Todos.findOneAndUpdate(
       { _id: req.params.id },
@@ -66,9 +70,9 @@ const toggleStatus = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json(data);
+    return res.status(200).json(generateResponse(true, response.todoEdited));
   } catch (err) {
-    res.status(500).json(err.message);
+    return res.status(500).json(generateResponse(false, err.message));
   }
 };
 

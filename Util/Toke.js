@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { response } = require("../response");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -9,15 +10,21 @@ const generateToken = (id) => {
 };
 
 const authToken = (req, res, next) => {
-  const token = req.body.token;
+  const authHeader = req.headers["authorization"];
+
+  const stringToken = authHeader && authHeader.split(" ")[1];
+  const token = stringToken.replace(/"/g, "");
 
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    console.log("yes");
+    return res.status(401).json(generateResponse(false, response.UnAuthorized));
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: "Invalid Token" });
+      return res
+        .status(403)
+        .json(generateResponse(false, response.invalidToken));
     }
 
     req.user = user;
